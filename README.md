@@ -1,0 +1,3 @@
+- start application
+- `curl -F 'file=@sample.pdf' http://localhost:8080/documents`
+- result: record saved in `DOCUMENT` table (see http://localhost:8080/h2-console)
