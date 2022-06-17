@@ -1,3 +1,5 @@
 <input type="file" (change)="fileChange($event)" placeholder="Upload file" accept=".pdf">
 <br>
 <span>loading: {{this.loading}}</span>
+<br>
+<span>status: {{(status | async)}}</span>
