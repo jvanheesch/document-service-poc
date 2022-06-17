@@ -26,12 +26,9 @@ export class AppComponent {
             formData.append('file', file, file.name);
             this.http
                 .post('/documents', formData)
-                .subscribe((document: any) => {
+                .subscribe(document => {
                     this.loading = false;
-
-                    const source = new EventSource(`/documents/${document.id}/status`); // jshint ignore:line
-                    source.onerror = () => source.close();
-                    source.onmessage = (event) => this._ngZone.run(() => this.status.next(event.data.replaceAll('\"', '')));
+                    console.log(document);
                 });
         }
     }

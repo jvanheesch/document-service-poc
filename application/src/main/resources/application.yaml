@@ -9,3 +9,7 @@ spring:
   h2:
     console:
       enabled: true
+  # overridden for illustrative purposes (default timeout is 30s)
+  mvc:
+    async:
+      request-timeout: 40000

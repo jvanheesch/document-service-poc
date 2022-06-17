@@ -16,5 +16,4 @@ public class Document {
     @Setter(AccessLevel.NONE)
     private Long id;
     private String name;
-    private DocumentStatus status;
 }

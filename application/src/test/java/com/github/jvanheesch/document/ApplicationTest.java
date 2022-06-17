@@ -1,6 +1,7 @@
 package com.github.jvanheesch.document;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +20,6 @@ import org.testcontainers.junit.jupiter.Container;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ApplicationTest {
     @LocalServerPort
     private int port;
+    @Autowired
+    private DocumentJpaRepository documentJpaRepository;
 
     @Container
     private static final GenericContainer<?> AXON_CONTAINER = new GenericContainer<>("axoniq/axonserver:4.5.12")
@@ -52,28 +53,24 @@ class ApplicationTest {
     }
 
     @Test
-    void testServerSentEvents() {
+    void testUploadDocument() {
         WebClient w = WebClient.create();
 
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
         builder.part("file", new ClassPathResource("sample.pdf"));
 
         // https://hantsy.github.io/spring-reactive-sample/web/multipart.html
-        List<DocumentStatus> block = w.post()
+        Document document = w.post()
                 .uri(String.format("http://localhost:%d/documents", port))
                 .body(BodyInserters.fromMultipartData(builder.build()))
                 .retrieve()
                 .bodyToMono(Document.class)
-                .map(Document::getId)
-                .flatMap(documentId -> w.get().uri(String.format("http://localhost:%d/documents/1/status", port))
-                        .retrieve()
-                        .bodyToFlux(DocumentStatus.class)
-                        .collectList())
-                .timeout(Duration.ofSeconds(10))
                 .block();
 
-        assertThat(block)
-                .isEqualTo(Arrays.asList(DocumentStatus.IN_PROGRESS, DocumentStatus.SUCCESS));
+        DocumentDTO documentRecord = documentJpaRepository.findById(document.getId()).orElseThrow();
+        assertThat(documentRecord.getCorrelation()).isNotNull();
+        assertThat(documentRecord.getDocumentserviceUuid())
+                .isEqualTo(documentRecord.getCorrelation());
     }
 
     @Configuration
