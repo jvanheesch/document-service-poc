@@ -19,6 +19,10 @@
         </dependency>
         <dependency>
             <groupId>com.github.jvanheesch</groupId>
+            <artifactId>adapter-inbound-outbound-infra-axon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jvanheesch</groupId>
             <artifactId>core</artifactId>
         </dependency>
         <dependency>

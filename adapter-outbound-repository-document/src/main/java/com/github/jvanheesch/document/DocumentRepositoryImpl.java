@@ -1,6 +1,7 @@
 package com.github.jvanheesch.document;
 
 import lombok.AllArgsConstructor;
+import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,13 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         jmsTemplate.convertAndSend("document.request.topic", correlation);
 
         return toDocument(documentDTO);
+    }
+
+    @QueryHandler
+    public DocumentStatus handle(DocumentStatusQuery query) {
+        return documentJpaRepository.findById(query.getDocumentId())
+                .map(DocumentDTO::getStatus)
+                .orElse(null);
     }
 
     private Document toDocument(DocumentDTO documentDTO) {
