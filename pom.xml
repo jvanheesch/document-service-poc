@@ -20,6 +20,7 @@
         <module>adapter-outbound-repository-document</module>
         <module>application</module>
         <module>core</module>
+        <module>frontend</module>
     </modules>
 
     <properties>
