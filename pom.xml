@@ -16,6 +16,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>adapter-inbound-outbound-infra-amq</module>
         <module>adapter-inbound-rest</module>
         <module>adapter-outbound-repository-document</module>
         <module>application</module>
@@ -29,6 +30,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.github.jvanheesch</groupId>
+                <artifactId>adapter-inbound-outbound-infra-amq</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
             <dependency>
                 <groupId>com.github.jvanheesch</groupId>
                 <artifactId>adapter-inbound-rest</artifactId>

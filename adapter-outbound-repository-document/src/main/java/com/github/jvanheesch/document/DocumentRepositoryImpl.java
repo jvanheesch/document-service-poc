@@ -1,6 +1,7 @@
 package com.github.jvanheesch.document;
 
 import lombok.AllArgsConstructor;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -9,6 +10,7 @@ import java.util.UUID;
 @Component
 public class DocumentRepositoryImpl implements DocumentRepository {
     private final DocumentJpaRepository documentJpaRepository;
+    private final JmsTemplate jmsTemplate;
 
     @Override
     public Document save(String name, byte[] content) {
@@ -20,6 +22,8 @@ public class DocumentRepositoryImpl implements DocumentRepository {
                 .status(DocumentStatus.IN_PROGRESS)
                 .correlation(correlation.toString())
                 .build());
+
+        jmsTemplate.convertAndSend("document.request.topic", correlation);
 
         return toDocument(documentDTO);
     }

@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  amq:
+    image: vromero/activemq-artemis:2.15.0-alpine
+    ports:
+      - "8161:8161"
+      - "61616:61616"
+    volumes:
+      - amq_data:/var/lib/artemis/data
+      - amq_etc:/var/lib/artemis/etc
+      - amq_etc-override:/var/lib/artemis/etc-override
+      - amq_lock:/var/lib/artemis/lock
+      - amq_tmp:/var/lib/artemis/tmp
+volumes:
+  amq_data:
+  amq_etc:
+  amq_etc-override:
+  amq_lock:
+  amq_tmp:

@@ -29,4 +29,5 @@ public class DocumentDTO {
     @Enumerated(value = EnumType.STRING)
     private DocumentStatus status;
     private String correlation;
+    private String documentserviceUuid;
 }
