@@ -19,6 +19,7 @@ import java.io.IOException;
 @RestController
 public class DocumentController {
     private final DocumentRepository documentRepository;
+    private final DocumentGenerator documentGenerator;
 
     @PostMapping
     public Mono<Document> upload(@RequestParam(value = "file") MultipartFile file) throws IOException {
@@ -35,5 +36,19 @@ public class DocumentController {
                         .build())
                 )
                 .body(documentRepository.download(id));
+    }
+
+    @GetMapping("/generate")
+    public ResponseEntity<byte[]> generate() {
+        return documentGenerator.generateDocument()
+                .map(data -> ResponseEntity
+                        .ok()
+                        .headers(h -> h.setContentDisposition(ContentDisposition.builder("attachment")
+                                // could be replaced with document.name
+                                .filename("content.txt")
+                                .build())
+                        )
+                        .body(data))
+                .block();
     }
 }

@@ -16,7 +16,7 @@ import java.util.UUID;
 @Slf4j
 @AllArgsConstructor
 @Component
-public class DocumentRepositoryImpl implements DocumentRepository {
+public class DocumentRepositoryImpl implements DocumentRepository, DocumentGenerator {
     private final DocumentJpaRepository documentJpaRepository;
     private final JmsTemplate jmsTemplate;
     private final QueryGateway queryGateway;
@@ -66,6 +66,38 @@ public class DocumentRepositoryImpl implements DocumentRepository {
                 .map(DocumentDTO::getDocumentserviceUuid)
                 .map(documentServiceUuid -> ("content: " + documentServiceUuid).getBytes(StandardCharsets.UTF_8))
                 .orElseThrow();
+    }
+
+    @Override
+    public Mono<byte[]> generateDocument() {
+        UUID correlation = UUID.randomUUID();
+
+        var documentDTO = documentJpaRepository.save(DocumentDTO
+                .builder()
+                .status(DocumentStatus.IN_PROGRESS)
+                .correlation(correlation.toString())
+                .build());
+
+        jmsTemplate.convertAndSend("document.request.topic", correlation);
+
+        SubscriptionQueryResult<DocumentStatus, DocumentStatus> statusQueryResult = queryGateway.subscriptionQuery(
+                new DocumentStatusQuery(documentDTO.getId()),
+                DocumentStatus.class,
+                DocumentStatus.class
+        );
+
+        return Flux.concat(statusQueryResult.initialResult().flux(), statusQueryResult.updates())
+                .filter(status -> status != DocumentStatus.IN_PROGRESS)
+                .next()
+                .flatMap(status -> switch (status) {
+                    case SUCCESS -> Mono.justOrEmpty(documentJpaRepository.findById(documentDTO.getId()));
+                    case IN_PROGRESS, FAILURE -> Mono.error(new RuntimeException("failed to save document with id " + documentDTO.getId()));
+                })
+                .map(DocumentDTO::getId)
+                .map(this::download)
+                .doOnCancel(() -> log.warn("Canceled request to generate document with id {}.", documentDTO.getId()))
+                .doOnError(e -> log.warn("Error during request to generate document with id {}.", documentDTO.getId(), e))
+                ;
     }
 
     private Document toDocument(DocumentDTO documentDTO) {
