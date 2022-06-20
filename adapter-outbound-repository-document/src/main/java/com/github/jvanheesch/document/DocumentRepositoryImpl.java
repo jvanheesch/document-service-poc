@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Slf4j
@@ -57,6 +58,14 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         return documentJpaRepository.findById(query.getDocumentId())
                 .map(DocumentDTO::getStatus)
                 .orElse(null);
+    }
+
+    @Override
+    public byte[] download(Long documentId) {
+        return documentJpaRepository.findById(documentId)
+                .map(DocumentDTO::getDocumentserviceUuid)
+                .map(documentServiceUuid -> ("content: " + documentServiceUuid).getBytes(StandardCharsets.UTF_8))
+                .orElseThrow();
     }
 
     private Document toDocument(DocumentDTO documentDTO) {

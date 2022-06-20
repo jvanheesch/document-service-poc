@@ -1,6 +1,10 @@
 package com.github.jvanheesch.document;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,5 +23,17 @@ public class DocumentController {
     @PostMapping
     public Mono<Document> upload(@RequestParam(value = "file") MultipartFile file) throws IOException {
         return documentRepository.save(file.getName(), file.getBytes());
+    }
+
+    @GetMapping("/{id}/download")
+    public ResponseEntity<byte[]> download(@PathVariable Long id) {
+        return ResponseEntity
+                .ok()
+                .headers(h -> h.setContentDisposition(ContentDisposition.builder("attachment")
+                        // could be replaced with document.name
+                        .filename("content.txt")
+                        .build())
+                )
+                .body(documentRepository.download(id));
     }
 }
