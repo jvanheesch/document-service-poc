@@ -18,6 +18,6 @@ class DocumentUploadFeedbackListener {
         // pretend documentservice uuid is equal to correlation
         documentDTO.setDocumentserviceUuid(correlation);
         documentJpaRepository.save(documentDTO);
-        queryUpdateEmitter.emit(DocumentStatusQuery.class, query -> query.getDocumentId() == documentDTO.getId(), DocumentStatus.SUCCESS);
+        queryUpdateEmitter.emit(DocumentStatusQuery.class, query -> true, DocumentStatus.SUCCESS);
     }
 }

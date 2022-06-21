@@ -12,7 +12,7 @@ spring:
   # overridden for illustrative purposes (default timeout is 30s)
   mvc:
     async:
-      request-timeout: 40000
+      request-timeout: 60000
 server:
   tomcat:
     threads:
