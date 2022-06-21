@@ -22,7 +22,7 @@ public class DocumentController {
     private final DocumentGenerator documentGenerator;
 
     @PostMapping
-    public Document upload(@RequestParam(value = "file") MultipartFile file) throws IOException {
+    public Mono<Document> upload(@RequestParam(value = "file") MultipartFile file) throws IOException {
         return documentRepository.save(file.getName(), file.getBytes());
     }
 
