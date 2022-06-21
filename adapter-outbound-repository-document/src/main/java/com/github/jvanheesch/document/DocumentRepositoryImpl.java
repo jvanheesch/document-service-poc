@@ -22,7 +22,7 @@ public class DocumentRepositoryImpl implements DocumentRepository, DocumentGener
     private final QueryGateway queryGateway;
 
     @Override
-    public Mono<Document> save(String name, byte[] content) {
+    public Document save(String name, byte[] content) {
         UUID correlation = UUID.randomUUID();
 
         var documentDTO = documentJpaRepository.save(DocumentDTO
@@ -50,6 +50,7 @@ public class DocumentRepositoryImpl implements DocumentRepository, DocumentGener
                 .map(this::toDocument)
                 .doOnCancel(() -> log.warn("Canceled request to save document with id {}.", documentDTO.getId()))
                 .doOnError(e -> log.warn("Error during request to save document with id {}.", documentDTO.getId(), e))
+                .block()
                 ;
     }
 
