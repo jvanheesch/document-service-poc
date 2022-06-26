@@ -16,7 +16,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
-import org.testcontainers.junit.jupiter.Container;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -33,12 +32,10 @@ class ApplicationTest {
     @Autowired
     private DocumentJpaRepository documentJpaRepository;
 
-    @Container
     private static final GenericContainer<?> AXON_CONTAINER = new GenericContainer<>("axoniq/axonserver:4.5.12")
             .withExposedPorts(8124)
             .waitingFor(new LogMessageWaitStrategy()
                     .withRegEx(".*Started AxonServer.*"));
-    @Container
     private static final GenericContainer<?> AMQ_CONTAINER = new GenericContainer<>("vromero/activemq-artemis:2.15.0-alpine")
             .withExposedPorts(61616, 8161)
             .waitingFor(new LogMessageWaitStrategy()
